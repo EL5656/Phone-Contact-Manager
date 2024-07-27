@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Phone-Contact-Manager
 =======
 # Getting Started with Create React App
