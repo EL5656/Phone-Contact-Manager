@@ -8,6 +8,7 @@ function App() {
   const contacts = [
     { name: 'John Doe', email: 'john@example.com', mobile: '123-456-7890' },
     { name: 'Jane Smith', email: 'jane@example.com', mobile: '987-654-3210' },
+    { name: 'Jane Smith', email: 'jane@example.com', mobile: '987-654-3210' },
   ];
   return (
     <div>
