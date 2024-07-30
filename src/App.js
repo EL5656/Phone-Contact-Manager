@@ -1,8 +1,11 @@
 import React from "react";
 import './App.css';
-import Header from "./components/Header";
-import AddContact from "./components/AddContact";
+import PhoneContact from "./phone-manager/PhoneContact";
 import ContactList from "./components/ContactList";
+import SignUp from "./phone-manager/SignUp";
+import Login from "./phone-manager/Login";
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
 
 function App() {
   const contacts = [
@@ -12,9 +15,14 @@ function App() {
   ];
   return (
     <div>
-      <Header />
-      <AddContact />
-      <ContactList contacts={contacts} />
+      {/* <ContactList contacts={contacts} /> */}
+      <Routes>
+        <Route path="/" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/contact" element={<PhoneContact />} />
+      </Routes>
+
+
     </div>
   );
 }

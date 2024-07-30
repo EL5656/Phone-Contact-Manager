@@ -1,0 +1,19 @@
+const PMS_USR_CTC = process.env.REACT_APP_USER_CONTACT;
+const PMS_NEW_USR = process.env.REACT_APP_NEW_SYS_USER;
+const PMS_USR_LOGIN = process.env.REACT_APP_VLD_USER_LOGIN;
+const VLD_USR_LOGIN = process.env.REACT_APP_VLD_EXIST_USER;
+const CRT_USR_CTC = process.env.REACT_APP_CRT_USER_CONTACT;
+const GET_USR_CTC = process.env.REACT_APP_GET_USER_CONTACT;
+const UPD_USR_CTC = process.env.REACT_APP_UPD_USER_CONTACT;
+const DLT_USR_CTC = process.env.REACT_APP_DLT_USER_CONTACT;
+
+export {
+    PMS_USR_CTC,
+    PMS_NEW_USR,
+    PMS_USR_LOGIN,
+    VLD_USR_LOGIN,
+    CRT_USR_CTC,
+    GET_USR_CTC,
+    UPD_USR_CTC,
+    DLT_USR_CTC
+};
