@@ -7,8 +7,8 @@ const ContactList = ({ contacts }) => {
         <div className="container mt-5">
             <div className="row">
                 {contacts.length > 0 ? (
-                    contacts.map((contact) => (
-                        <ContactCard key={contact._id} contact={contact} />
+                    contacts.map((contact, index) => (
+                        <ContactCard key={index} contact={contact} />
                     ))
                 ) : (
                     <div className="col-12 text-center">
