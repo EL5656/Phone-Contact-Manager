@@ -1,5 +1,5 @@
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; 
+import 'bootstrap/dist/css/bootstrap.min.css';
 import ContactCard from './ContactCard';
 
 const ContactList = ({ contacts }) => {
@@ -7,8 +7,8 @@ const ContactList = ({ contacts }) => {
         <div className="container mt-5">
             <div className="row">
                 {contacts.length > 0 ? (
-                    contacts.map((contact, index) => (
-                        <ContactCard key={index} contact={contact} />
+                    contacts.map((contact) => (
+                        <ContactCard key={contact._id} contact={contact} />
                     ))
                 ) : (
                     <div className="col-12 text-center">

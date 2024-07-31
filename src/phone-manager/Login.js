@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import FormField from '../components/FormField';
 import { useNavigate } from 'react-router-dom';
 import { PMS_USR_LOGIN, VLD_USR_LOGIN } from '../Constants';
@@ -6,13 +6,12 @@ import { PMS_USR_LOGIN, VLD_USR_LOGIN } from '../Constants';
 const Login = () => {
     const navigateTo = useNavigate();
     const [accessToken, setAccessToken] = useState('');
-    const [errMsg, setErrMsg] = useState({});
 
     useEffect(() => {
         if (accessToken) {
             console.log("Access token generated!");
-            localStorage.setItem('Access token', accessToken);
-            validateUserLogin(accessToken);
+            localStorage.setItem('token', accessToken);
+            validateUserLogin(accessToken); 
         }
     }, [accessToken]);
 
@@ -35,7 +34,8 @@ const Login = () => {
                 },
             });
             const data = await response.json();
-            console.log("Login user: ", data); //user profile get data from here
+            console.log("Login user: ", data);
+            localStorage.setItem("user",JSON.stringify(data));
             navigateTo("/contact");
         } catch (error) {
             throw new Error(error);
@@ -67,7 +67,7 @@ const Login = () => {
                 fields={fields}
                 onSubmit={loginUser}
                 onSuccess={(res) => {
-                    console.log(res);
+                    console.log(res);//access token
                 }}
                 onError={(error) => {
                     console.log('Login error:', error);
@@ -77,6 +77,7 @@ const Login = () => {
                 textBtnText="Sign Up"
                 textBtnClick={signUp}
             />
+
         </>
     );
 };

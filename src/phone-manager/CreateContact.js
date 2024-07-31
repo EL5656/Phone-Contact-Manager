@@ -1,29 +1,36 @@
-import React, { useState } from 'react';
+// src/phone-manager/CreateContact.js
+import React, { useContext } from 'react';
 import FormField from '../components/FormField';
-import { PMS_NEW_USR } from '../Constants';
+import { CRT_USR_CTC } from '../Constants';
 
 const CreateContact = () => {
-  const title = "Create Contact";
+  const title = "Contact";
+
   const fields = [
     { name: 'name', label: 'Name', type: 'text', required: true },
     { name: 'email', label: 'Email', type: 'email', required: true },
     { name: 'mobile', label: 'Mobile', type: 'text', required: true },
   ];
 
+  const getUserData = () => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      return JSON.parse(user); // Parse the JSON string back to an object
+    }
+    return null;
+  };
+
   const addContact = async (data) => {
     try {
-      const response = await fetch(PMS_NEW_USR, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+      const user = getUserData(); 
+      const response = await fetch(CRT_USR_CTC, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({ ...data, user_id: user.id }),
       });
-
-      if (!response.ok) {
-        throw new Error('User already exist');
-      }
-
       return await response.json();
     } catch (error) {
       throw new Error('Validation Error: ' + error.message);
@@ -36,14 +43,12 @@ const CreateContact = () => {
         title={title}
         fields={fields}
         onSubmit={addContact}
-        onSuccess={(data)=>{console.log('User created successfully!', data)}}
-        onError={(err) => {
-          console.error('Failed:', err);
-        }}
+        onSuccess={(data) => { console.log('User created successfully!', data); }}
+        onError={(err) => { console.error('Failed:', err); }}
         primaryBtnTxt="Save"
         primaryBtnClass="w-25 btn btn-primary"
-        primaryBtnClick
       />
+      {null}
     </>
   );
 };

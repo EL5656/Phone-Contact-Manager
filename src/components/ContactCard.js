@@ -3,7 +3,7 @@ import { FaTrashAlt, FaEdit } from 'react-icons/fa';
 
 const ContactCard = ({ contact }) => {
     const greyStyle = { color: 'grey' };
-    const {id, name, email, mobile} = contact;
+    const {name, email, mobile} = contact;
 
     return (
         <div className="col-md-4 mb-4">
