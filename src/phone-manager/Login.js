@@ -11,7 +11,7 @@ const Login = () => {
         if (accessToken) {
             console.log("Access token generated!");
             localStorage.setItem('token', accessToken);
-            validateUserLogin(accessToken); 
+            validateUserLogin(accessToken);
         }
     }, [accessToken]);
 
@@ -35,7 +35,7 @@ const Login = () => {
             });
             const data = await response.json();
             console.log("Login user: ", data);
-            localStorage.setItem("user",JSON.stringify(data));
+            localStorage.setItem("user", JSON.stringify(data));
             navigateTo("/contact");
         } catch (error) {
             throw new Error(error);
@@ -62,8 +62,10 @@ const Login = () => {
 
     return (
         <>
+            <div class="p-4 bg-primary text-white text-center">
+                <h1>Phone Management System</h1>
+            </div>
             <FormField
-                title="Login"
                 fields={fields}
                 onSubmit={loginUser}
                 onSuccess={(res) => {

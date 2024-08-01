@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import CreateContact from './CreateContact';
-import { CRT_USR_CTC, GET_USR_CTC, UPD_USR_CTC } from '../Constants';
+import { CRT_USR_CTC, GET_USR_CTC, UPD_USR_CTC, DLT_USR_CTC } from '../Constants';
 import ContactList from '../components/ContactList';
 import { Form, InputGroup } from 'react-bootstrap';
 import { FaSearch } from 'react-icons/fa';
+import PMSModal from '../components/PMSModal';
 
 const isValidObjectId = (id) => /^[a-fA-F0-9]{24}$/.test(id);
 
@@ -14,6 +15,8 @@ const PhoneContact = () => {
     const [query, setQuery] = useState('');
     const [id, setId] = useState(null);
     const [selectedContact, setSelectedContact] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [contactToDelete, setContactToDelete] = useState(null);
 
     const user = JSON.parse(localStorage.getItem('user'));
     const uid = user?.id;
@@ -87,10 +90,10 @@ const PhoneContact = () => {
     const handleSave = async (data) => {
         const isNewContact = !data._id;
         const method = isNewContact ? 'POST' : 'PUT';
-        const endpoint = isNewContact ? CRT_USR_CTC : `${UPD_USR_CTC}/${data._id}`;
+        const url = isNewContact ? CRT_USR_CTC : `${UPD_USR_CTC}/${data._id}`;
 
         try {
-            const response = await fetch(endpoint, {
+            const response = await fetch(url, {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
@@ -136,6 +139,33 @@ const PhoneContact = () => {
         setId(foundId);
     };
 
+    const handleDelete = async (contactId) => {
+        try {
+            const response = await fetch(`${DLT_USR_CTC}/${contactId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+
+            setContacts(prevContacts => prevContacts.filter(contact => contact._id !== contactId));
+            setShowDeleteModal(false);
+        } catch (err) {
+            console.error(`Failed to delete contact: ${err}`);
+            setError(`Failed to delete contact: ${err.message}`);
+        }
+    };
+
+    const confirmDelete = (contactId) => {
+        setContactToDelete(contactId);
+        setShowDeleteModal(true);
+    };
+
     if (loading) return <p>Loading...</p>;
 
     return (
@@ -166,9 +196,16 @@ const PhoneContact = () => {
                 <ContactList
                     contacts={contacts}
                     onEdit={(data) => handleEdit(data)}
-                    onDelete={() => { }}
+                    onDelete={(contactId) => confirmDelete(contactId)}
                 />
             }
+             <PMSModal
+                show={showDeleteModal}
+                onHide={() => setShowDeleteModal(false)}
+                title="Confirm Delete"
+                body="Are you sure you want to delete this contact?"
+                onConfirm={() => handleDelete(contactToDelete)}
+            />
         </>
     );
 };

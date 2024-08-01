@@ -38,7 +38,7 @@ const SignUp = () => {
   };
 
   const onSignUpSuccess = () => {
-    if(success){
+    if (success) {
       return (
         <Alert variant="success">{`${title} successfully`}</Alert>
       );
@@ -47,8 +47,10 @@ const SignUp = () => {
 
   return (
     <>
+      <div class="p-4 bg-primary text-white text-center">
+        <h1>Phone Management System</h1>
+      </div>
       <FormField
-        title={title}
         fields={fields}
         onSubmit={registerUser}
         onSuccess={(data) => { console.log('User signed up successfully!', data) }}
@@ -56,7 +58,7 @@ const SignUp = () => {
           console.error('Sign up error:', err);
         }}
         successMsg={onSignUpSuccess}
-        primaryBtnTxt="Save"
+        primaryBtnTxt="Sign Up"
         primaryBtnClass="w-25 btn btn-primary"
         primaryBtnClick
         textBtnText="Login"
