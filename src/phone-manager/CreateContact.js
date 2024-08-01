@@ -1,55 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import FormField from '../components/FormField';
-import { CRT_USR_CTC } from '../Constants';
 
-const CreateContact = () => {
-  const title = "Contact";
+const CreateContact = ({ contact, onSave }) => {
+    const [formData, setFormData] = useState(contact || {});
 
-  const fields = [
-    { name: 'name', label: 'Name', type: 'text', required: true },
-    { name: 'email', label: 'Email', type: 'email', required: true },
-    { name: 'mobile', label: 'Mobile', type: 'text', required: true },
-  ];
+    useEffect(() => {
+        if (contact) {
+            setFormData(contact);
+        }
+    }, [contact]);
 
-  const getUserData = () => {
-    const user = localStorage.getItem('user');
-    if (user) {
-      return JSON.parse(user); // Parse the JSON string back to an object
-    }
-    return null;
-  };
+    const handleSubmit = async (data) => {
+        try {
+            await onSave(data);
+        } catch (err) {
+            console.error('Form submission error:', err);
+        }
+    };
 
-  const addContact = async (data) => {
-    try {
-      const user = getUserData(); 
-      const response = await fetch(CRT_USR_CTC, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-          body: JSON.stringify({ ...data, user_id: user.id }),
-      });
-      return await response.json();
-    } catch (error) {
-      throw new Error('Validation Error: ' + error.message);
-    }
-  };
-
-  return (
-    <>
-      <FormField
-        title={title}
-        fields={fields}
-        onSubmit={addContact}
-        onSuccess={(data) => { console.log('User created successfully!', data); }}
-        onError={(err) => { console.error('Failed:', err); }}
-        primaryBtnTxt="Save"
-        primaryBtnClass="w-25 btn btn-primary"
-      />
-      {null}
-    </>
-  );
+    return (
+        <div>
+            <FormField
+                title="Contact"
+                fields={[
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'email', label: 'Email', type: 'email', required: true },
+                    { name: 'mobile', label: 'Mobile', type: 'text', required: true },
+                ]}
+                initialData={formData}
+                onSubmit={handleSubmit}
+                onError={(err) => {
+                    console.error('Form error:', err.message || err);
+                }}
+                onSuccess={(data) => console.log('Contact saved successfully!', data)}
+                primaryBtnClass="btn btn-primary"
+                primaryBtnTxt="Save"
+            />
+        </div>
+    );
 };
 
 export default CreateContact;

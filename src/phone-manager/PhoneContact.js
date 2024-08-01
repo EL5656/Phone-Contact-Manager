@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CreateContact from './CreateContact';
-import { CRT_USR_CTC, GET_USR_CTC } from '../Constants';
+import { CRT_USR_CTC, GET_USR_CTC, UPD_USR_CTC } from '../Constants';
 import ContactList from '../components/ContactList';
 import { Form, InputGroup } from 'react-bootstrap';
 import { FaSearch } from 'react-icons/fa';
@@ -13,6 +13,7 @@ const PhoneContact = () => {
     const [error, setError] = useState('');
     const [query, setQuery] = useState('');
     const [id, setId] = useState(null);
+    const [selectedContact, setSelectedContact] = useState(null);
 
     const user = JSON.parse(localStorage.getItem('user'));
     const uid = user?.id;
@@ -22,10 +23,7 @@ const PhoneContact = () => {
             setLoading(true);
             setError('');
             try {
-                // Correct URL construction
                 const url = `${GET_USR_CTC}/${encodeURIComponent(id)}`;
-                console.log('Fetch URL:', url);
-    
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -33,19 +31,16 @@ const PhoneContact = () => {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     },
                 });
-    
-                console.log('Fetch response status:', response.status);
-    
+
                 if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                    const errorData = await response.json();
+                    throw new Error(`Network response was not ok: ${response.statusText} - ${errorData.message}`);
                 }
-    
+
                 const data = await response.json();
-                console.log('Fetched contact data:', data);
                 setContacts(data ? [data] : []);
             } catch (err) {
-                console.error('Fetch error:', err);
-                setError(`Error: ${err.message}`);
+                setError(`Error: ${err.message || 'Unknown error occurred'}`);
             } finally {
                 setLoading(false);
             }
@@ -53,14 +48,12 @@ const PhoneContact = () => {
             setError('Invalid search ID format');
         }
     };
-    
-    
+
     useEffect(() => {
         const fetchContacts = async () => {
             if (uid && isValidObjectId(uid)) {
                 setLoading(true);
                 setError('');
-                console.log(`Fetching contacts for user ID: ${uid}`);
                 try {
                     const response = await fetch(`${CRT_USR_CTC}?user_id=${encodeURIComponent(uid)}`, {
                         method: 'GET',
@@ -70,18 +63,15 @@ const PhoneContact = () => {
                         },
                     });
 
-                    console.log('Fetch response status:', response.status);
-
                     if (!response.ok) {
-                        throw new Error(`Network response was not ok: ${response.statusText}`);
+                        const errorData = await response.json();
+                        throw new Error(`Network response was not ok: ${response.statusText} - ${errorData.message}`);
                     }
 
                     const data = await response.json();
-                    console.log('Fetched contacts data:', data);
                     setContacts(data || []);
                 } catch (err) {
-                    console.error('Fetch error:', err);
-                    setError(`Error: ${err.message}`);
+                    setError(`Error: ${err.message || 'Unknown error occurred'}`);
                 } finally {
                     setLoading(false);
                 }
@@ -94,14 +84,48 @@ const PhoneContact = () => {
         fetchContacts();
     }, [uid]);
 
-    const findIdByName = (name) => {
-        console.log(`Finding ID for contact name: ${name}`);
-        if (!contacts) {
-            console.error('Contacts is undefined');
-            return null;
+    const handleSave = async (data) => {
+        const isNewContact = !data._id;
+        const method = isNewContact ? 'POST' : 'PUT';
+        const endpoint = isNewContact ? CRT_USR_CTC : `${UPD_USR_CTC}/${data._id}`;
+
+        try {
+            const response = await fetch(endpoint, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Network response was not ok: ${response.statusText} - ${errorData.message}`);
+            }
+
+            const updatedContact = await response.json();
+            setContacts(prevContacts => {
+                if (isNewContact) {
+                    return [...prevContacts, updatedContact];
+                }
+                return prevContacts.map(contact => contact._id === updatedContact._id ? updatedContact : contact);
+            });
+
+            setSelectedContact(null); // Clear the selected contact after save
+        } catch (err) {
+            console.error(`Failed to save contact: ${err}`);
+            setError(`Failed to save contact: ${err.message || 'Unknown error occurred'}`);
         }
+    };
+
+    const handleEdit = (contact) => {
+        setSelectedContact(contact);
+    };
+
+    const findIdByName = (name) => {
+        if (!contacts) return null;
         const result = contacts.find(item => item.name === name);
-        console.log('Search result:', result);
         return result ? result._id : null;
     };
 
@@ -110,15 +134,14 @@ const PhoneContact = () => {
         setQuery(name);
         const foundId = findIdByName(name);
         setId(foundId);
-        console.log(`Search query updated: ${name}, found ID: ${foundId}`);
     };
 
     if (loading) return <p>Loading...</p>;
 
     return (
         <>
-            <CreateContact />
-            {error && <p className="text-danger">{error}</p>}
+            <CreateContact contact={selectedContact} onSave={handleSave} />
+            {error && <p className="text-danger">{String(error)}</p>}
             <div className="mt-4">
                 <div className="d-flex justify-content-center">
                     <div className="w-45">
@@ -139,7 +162,13 @@ const PhoneContact = () => {
                     </div>
                 </div>
             </div>
-            {contacts.length > 0 && <ContactList contacts={contacts} />}
+            {contacts.length > 0 &&
+                <ContactList
+                    contacts={contacts}
+                    onEdit={(data) => handleEdit(data)}
+                    onDelete={() => { }}
+                />
+            }
         </>
     );
 };
